@@ -1,14 +1,15 @@
 # React 19 — App demo
 
-App trình diễn 3 tính năng đáng chú ý nhất của React 19, mỗi tính năng một route riêng,
+App trình diễn 4 tính năng đáng chú ý nhất của React 19, mỗi tính năng một route riêng,
 mỗi ví dụ có **code bên trái** và **kết quả chạy thật bên phải**.
 
 | Route             | Nội dung                                                    |
 | ----------------- | ----------------------------------------------------------- |
 | `/`               | Tổng quan + mạch trình bày gợi ý                            |
 | `/react-compiler` | React Compiler — tự động memo hoá (5 ví dụ)                 |
-| `/use-optimistic` | `useOptimistic` — UI phản hồi tức thì (3 ví dụ + checklist) |
+| `/use-optimistic` | `useOptimistic` — UI phản hồi tức thì, so với TanStack Query (4 ví dụ + checklist) |
 | `/ref-as-prop`    | `ref` là prop bình thường + ref cleanup (4 ví dụ)           |
+| `/use-transition` | `useTransition` — UI không khựng khi render nặng (3 ví dụ + checklist) |
 
 ## Chạy
 
@@ -22,7 +23,7 @@ Các lệnh khác:
 ```bash
 npm run build        # tsc -b && vite build
 npm run lint         # eslint
-npm run smoke        # render cả 4 route bằng react-dom/server để bắt lỗi runtime
+npm run smoke        # render mọi route bằng react-dom/server để bắt lỗi runtime
 npm run gen:compiled # sinh lại output thật của React Compiler
 ```
 
@@ -56,8 +57,11 @@ lên file `src/pages/compiler/samples/CartSummary.tsx` và ghi kết quả vào
 2. Trang **React Compiler**: bấm nút vài lần cho khán giả thấy bộ đếm hai bên tách nhau, rồi
    mở modal "đã compile" — đó là khoảnh khắc gây bất ngờ nhất.
 3. Trang **useOptimistic**: kéo latency lên 2–3 giây trước, sau đó bật "Luôn lỗi" để show rollback.
+   Ở ví dụ 4, bấm "Gửi 3 tin cùng lúc" ở chế độ "Cơ bản" rồi "Chuẩn hơn" để so với TanStack Query.
 4. Trang **ref**: phần ref cleanup (ví dụ 4) là thứ ít người biết nhất — tắt/bật công tắc vài lần
    cho mọi người nhìn log gắn/gỡ.
+5. Trang **useTransition**: gõ nhanh "Dell" ở ô bên trái trước rồi mới tới bên phải, chỉ vào đồng hồ
+   độ trễ trong ô nhập. Ở ví dụ 2, bấm "Sản phẩm" rồi bấm ngay "Liên hệ".
 5. Mở sẵn Console: demo "gọi setOptimistic ngoài transition" có in cảnh báo của React.
 
 ## Công nghệ

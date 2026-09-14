@@ -62,10 +62,14 @@ function shouldFail() {
 
 /**
  * Giả lập một lần gọi API: chờ theo latency rồi trả về dữ liệu — hoặc ném lỗi.
+ * `opts` ghi đè cấu hình chung cho riêng request này (dùng cho các kịch bản cố định).
  */
-export async function fakeRequest<T>(data: T, opts?: { latency?: number }): Promise<T> {
+export async function fakeRequest<T>(
+  data: T,
+  opts?: { latency?: number; fail?: boolean },
+): Promise<T> {
   await sleep(opts?.latency ?? config.latency)
-  if (shouldFail()) {
+  if (opts?.fail ?? shouldFail()) {
     throw new ServerError()
   }
   return data

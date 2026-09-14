@@ -1,5 +1,5 @@
 /**
- * Smoke test: render toàn bộ 4 route bằng react-dom/server để chắc chắn
+ * Smoke test: render toàn bộ các route bằng react-dom/server để chắc chắn
  * không có lỗi runtime lúc render (sai API, hook dùng sai chỗ, component undefined...).
  *
  *   npm run smoke
@@ -12,7 +12,7 @@ import viVN from 'antd/locale/vi_VN'
 import App from '../src/App'
 import { darkTheme } from '../src/theme'
 
-const ROUTES = ['/', '/react-compiler', '/use-optimistic', '/ref-as-prop']
+const ROUTES = ['/', '/react-compiler', '/use-optimistic', '/ref-as-prop', '/use-transition']
 
 let failed = false
 

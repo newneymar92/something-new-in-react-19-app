@@ -9,11 +9,43 @@ import { extractRegion } from '../../lib/source'
 import ChatDemo from './demos/ChatDemo'
 import LikeDemo from './demos/LikeDemo'
 import TodoDemo from './demos/TodoDemo'
+import CompareDemo from './demos/compare/CompareDemo'
+import { VIA_VARIABLES } from './demos/compare/snippets'
 import { GOTCHAS, NEW_WAY, OLD_WAY, SIGNATURE } from './snippets'
 
 import chatRaw from './demos/ChatDemo.tsx?raw'
 import likeRaw from './demos/LikeDemo.tsx?raw'
 import todoRaw from './demos/TodoDemo.tsx?raw'
+import optimisticChatRaw from './demos/compare/useOptimisticChat.ts?raw'
+import tanstackChatRaw from './demos/compare/useTanstackChat.ts?raw'
+
+const COMPARE_ROWS = [
+  {
+    aspect: 'Rollback khi lỗi',
+    optimistic: 'Tự động — hết action là giá trị lạc quan biến mất',
+    tanstack: 'Tự viết trong onError (hoặc dùng cách qua variables)',
+  },
+  {
+    aspect: 'Giá trị lạc quan nằm ở đâu',
+    optimistic: 'Cục bộ trong component gọi hook',
+    tanstack: 'Trong cache dùng chung — mọi component cùng queryKey đều thấy',
+  },
+  {
+    aspect: 'Nhiều request song song',
+    optimistic: 'Không nhấp nháy, nhưng cả loạt cùng "chốt" khi action cuối cùng xong',
+    tanstack: 'Viết cơ bản thì nhấp nháy; viết chuẩn thì chính xác từng tin',
+  },
+  {
+    aspect: 'Phạm vi',
+    optimistic: 'Chỉ là một hook UI, không fetch hay cache gì',
+    tanstack: 'Quản lý server state đầy đủ: fetch, cache, retry, refetch, invalidate',
+  },
+  {
+    aspect: 'Hợp với',
+    optimistic: 'form action, useActionState, Server Actions, app không có thư viện data',
+    tanstack: 'App đã dùng TanStack Query cho dữ liệu server',
+  },
+]
 
 export default function UseOptimisticPage() {
   return (
@@ -28,7 +60,7 @@ export default function UseOptimisticPage() {
             giá trị lạc quan khi action kết thúc.
           </>
         }
-        tags={['React 19', 'Actions', 'useTransition', 'useActionState', 'useFormStatus']}
+        tags={['React 19', 'Actions', 'useTransition', 'useActionState', 'useFormStatus', 'TanStack Query']}
       />
 
       <Row gutter={[20, 20]}>
@@ -143,7 +175,85 @@ export default function UseOptimisticPage() {
         <TodoDemo />
       </DemoCard>
 
-      <SectionTitle num="5">Bốn điều dễ vấp</SectionTitle>
+      <SectionTitle num="5">Ví dụ 4 — So với TanStack Query</SectionTitle>
+
+      <DemoCard
+        title="onMutate cũng set UI trước và rollback được — vậy khác gì?"
+        description={
+          <>
+            Cùng một khung chat, bên trái dùng <code>useOptimistic</code>, bên phải dùng TanStack Query
+            (<code>@tanstack/react-query</code> cài thật trong app). Gửi tay từng tin thì hai bên trông
+            như nhau — khác biệt chỉ lộ ra khi <b>nhiều request chạy song song và có cái lỗi</b>.
+          </>
+        }
+        code={[
+          {
+            key: 'optimistic',
+            label: 'useOptimistic',
+            code: extractRegion(optimisticChatRaw, 'demo'),
+            language: 'tsx',
+            maxHeight: 640,
+          },
+          {
+            key: 'basic',
+            label: 'TanStack — cơ bản',
+            code: extractRegion(tanstackChatRaw, 'basic'),
+            language: 'tsx',
+            maxHeight: 640,
+          },
+          {
+            key: 'better',
+            label: 'TanStack — chuẩn hơn',
+            code: extractRegion(tanstackChatRaw, 'better'),
+            language: 'tsx',
+            maxHeight: 640,
+          },
+          {
+            key: 'variables',
+            label: 'TanStack — qua variables',
+            code: VIA_VARIABLES,
+            language: 'tsx',
+            maxHeight: 640,
+          },
+        ]}
+        wideCode
+        footer={
+          <>
+            <div style={{ overflowX: 'auto' }}>
+              <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13.5, minWidth: 560 }}>
+                <thead>
+                  <tr style={{ textAlign: 'left' }}>
+                    <th style={{ padding: '6px 10px', width: '20%' }} />
+                    <th style={{ padding: '6px 10px', color: 'var(--primary)' }}>useOptimistic</th>
+                    <th style={{ padding: '6px 10px', color: 'var(--warning)' }}>TanStack Query</th>
+                  </tr>
+                </thead>
+                <tbody className="dim">
+                  {COMPARE_ROWS.map((row) => (
+                    <tr key={row.aspect} style={{ borderTop: '1px solid var(--border-soft)' }}>
+                      <td style={{ padding: '8px 10px', color: 'var(--text)', fontWeight: 600 }}>
+                        {row.aspect}
+                      </td>
+                      <td style={{ padding: '8px 10px' }}>{row.optimistic}</td>
+                      <td style={{ padding: '8px 10px' }}>{row.tanstack}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+            <p className="dim" style={{ margin: '12px 0 0', lineHeight: 1.7 }}>
+              <b style={{ color: 'var(--text)' }}>Chốt:</b> dự án đã dùng TanStack Query thì cứ dùng
+              pattern của nó (chỉ một chỗ hiển thị → cách qua <code>variables</code>; nhiều component
+              cùng thấy → sửa cache kiểu &quot;chuẩn hơn&quot;). <code>useOptimistic</code> toả sáng khi
+              đi cùng form action / Server Actions của React 19 và không muốn thêm thư viện.
+            </p>
+          </>
+        }
+      >
+        <CompareDemo />
+      </DemoCard>
+
+      <SectionTitle num="6">Bốn điều dễ vấp</SectionTitle>
 
       <DemoCard
         title="Checklist trước khi mang lên production"
