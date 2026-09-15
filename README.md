@@ -7,7 +7,7 @@ mỗi ví dụ có **code bên trái** và **kết quả chạy thật bên ph�
 | ----------------- | ----------------------------------------------------------- |
 | `/`               | Tổng quan + mạch trình bày gợi ý                            |
 | `/react-compiler` | React Compiler — tự động memo hoá (5 ví dụ)                 |
-| `/use-optimistic` | `useOptimistic` — UI phản hồi tức thì, so với TanStack Query (4 ví dụ + checklist) |
+| `/use-optimistic` | `useOptimistic` — UI phản hồi tức thì, so với `useState` và TanStack Query (4 ví dụ + checklist) |
 | `/ref-as-prop`    | `ref` là prop bình thường + ref cleanup (4 ví dụ)           |
 | `/use-transition` | `useTransition` — UI không khựng khi render nặng (3 ví dụ + checklist) |
 
