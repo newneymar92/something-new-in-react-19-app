@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Alert, Input, Space, Statistic } from 'antd'
 import { SearchOutlined, EditOutlined } from '@ant-design/icons'
+import { Link } from 'react-router-dom'
 
 import CompiledBadge from '../../../components/CompiledBadge'
 import RenderBadge from '../../../components/RenderBadge'
@@ -62,7 +63,7 @@ function ResultView({
           styles={{ content: { fontSize: 20, color: tone === 'hot' ? 'var(--danger)' : 'var(--success)' } }}
         />
         <Statistic
-          title="Tổng CPU đã tiêu"
+          title="Tổng thời gian lọc"
           value={result.totalMs}
           suffix="ms"
           styles={{ content: { fontSize: 20 } }}
@@ -95,53 +96,80 @@ function ResultView({
   )
 }
 
-export default function AutoUseMemoDemo() {
-  const [query, setQuery] = useState('Dell')
+/**
+ * Mỗi bên giữ state ghi chú RIÊNG: gõ ở bên nào thì chỉ bên đó render lại.
+ * Nếu dùng chung một ô, cả hai panel nằm trong cùng một lần render nên bên
+ * trái chậm sẽ kéo cả trang chậm theo — không còn thấy "trái giật, phải mượt".
+ */
+function DemoColumn({
+  query,
+  title,
+  titleColor,
+  Panel,
+  panelName,
+}: {
+  query: string
+  title: string
+  titleColor: string
+  Panel: typeof SearchPanelCompiled
+  panelName: string
+}) {
   const [note, setNote] = useState('')
 
   return (
     <div>
-      <div style={{ display: 'grid', gap: 12, marginBottom: 16 }}>
-        <label>
-          <div style={{ fontSize: 12.5, marginBottom: 4, color: 'var(--warning)', fontWeight: 600 }}>
-            Ô này ẢNH HƯỞNG tới kết quả lọc
-          </div>
-          <Input
-            prefix={<SearchOutlined />}
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            placeholder="Từ khoá tìm sản phẩm"
-          />
-        </label>
-        <label>
-          <div style={{ fontSize: 12.5, marginBottom: 4, color: 'var(--text-dim)', fontWeight: 600 }}>
-            Ô này KHÔNG liên quan gì tới phép lọc
-          </div>
-          <Input
-            prefix={<EditOutlined />}
-            value={note}
-            onChange={(e) => setNote(e.target.value)}
-            placeholder="Gõ thoải mái — để ý bên trái giật, bên phải mượt"
-          />
-        </label>
-      </div>
+      <Space size={6} style={{ marginBottom: 8 }} wrap>
+        <b style={{ color: titleColor }}>{title}</b>
+        <CompiledBadge fn={Panel} name={panelName} />
+      </Space>
+      <label style={{ display: 'block', marginBottom: 10 }}>
+        <div style={{ fontSize: 12.5, marginBottom: 4, color: 'var(--text-dim)', fontWeight: 600 }}>
+          Ghi chú — KHÔNG liên quan gì tới phép lọc
+        </div>
+        <Input
+          prefix={<EditOutlined />}
+          value={note}
+          onChange={(e) => setNote(e.target.value)}
+          placeholder="Gõ liên tục vào đây"
+        />
+      </label>
+      <Panel query={query} note={note} />
+    </div>
+  )
+}
+
+export default function AutoUseMemoDemo() {
+  const [query, setQuery] = useState('Dell')
+
+  return (
+    <div>
+      <label style={{ display: 'block', marginBottom: 16 }}>
+        <div style={{ fontSize: 12.5, marginBottom: 4, color: 'var(--warning)', fontWeight: 600 }}>
+          Từ khoá — dùng chung cho cả hai bên, ẢNH HƯỞNG tới kết quả lọc
+        </div>
+        <Input
+          prefix={<SearchOutlined />}
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+          placeholder="Từ khoá tìm sản phẩm"
+        />
+      </label>
 
       <div style={{ display: 'grid', gap: 14, gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))' }}>
-        <div>
-          <Space size={6} style={{ marginBottom: 8 }} wrap>
-            <b style={{ color: 'var(--danger)' }}>❌ Không compiler</b>
-            <CompiledBadge fn={SearchPanelNoCompiler} name="SearchPanelNoCompiler" />
-          </Space>
-          <SearchPanelNoCompiler query={query} note={note} />
-        </div>
-
-        <div>
-          <Space size={6} style={{ marginBottom: 8 }} wrap>
-            <b style={{ color: 'var(--success)' }}>✅ Có compiler</b>
-            <CompiledBadge fn={SearchPanelCompiled} name="SearchPanelCompiled" />
-          </Space>
-          <SearchPanelCompiled query={query} note={note} />
-        </div>
+        <DemoColumn
+          query={query}
+          title="❌ Không compiler"
+          titleColor="var(--danger)"
+          Panel={SearchPanelNoCompiler}
+          panelName="SearchPanelNoCompiler"
+        />
+        <DemoColumn
+          query={query}
+          title="✅ Có compiler"
+          titleColor="var(--success)"
+          Panel={SearchPanelCompiled}
+          panelName="SearchPanelCompiled"
+        />
       </div>
 
       <Alert
@@ -151,9 +179,12 @@ export default function AutoUseMemoDemo() {
         title="Cách diễn cho khán giả"
         description={
           <span className="dim">
-            Gõ liên tục vào ô &quot;KHÔNG liên quan&quot;: ô nhập bên trái sẽ khựng lại vì mỗi ký tự
-            phải lọc lại 2000 sản phẩm, còn &quot;số lần lọc&quot; bên phải đứng yên. Sau đó đổi từ
-            khoá ở ô trên — lúc này cả hai đều tính lại, đúng như mong đợi.
+            Gõ liên tục vào ô ghi chú bên trái: chữ hiện ra bị khựng vì mỗi ký tự lại phải lọc lại
+            2000 sản phẩm, &quot;số lần lọc&quot; tăng theo từng phím. Làm y hệt ở ô ghi chú bên
+            phải: gõ mượt, &quot;số lần lọc&quot; đứng yên. Sau đó đổi từ khoá ở ô trên cùng — lúc
+            này cả hai đều tính lại và ô từ khoá khựng ở cả hai bên: compiler chỉ bỏ qua phép tính
+            thừa, không làm phép tính nhanh hơn. Muốn gõ vẫn mượt khi phép tính bắt buộc phải chạy,
+            xem <Link to="/use-transition">useTransition</Link>.
           </span>
         }
       />

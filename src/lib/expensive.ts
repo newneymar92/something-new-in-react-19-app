@@ -37,8 +37,15 @@ export function resetMeters() {
 }
 
 /**
+ * Số vòng lặp "vô nghĩa" cho MỖI sản phẩm. 60_000 × 2000 sản phẩm ≈ 85ms trên
+ * máy dev — vượt ngưỡng ~50ms mà mắt người bắt đầu thấy khựng khi gõ phím.
+ * Máy yếu hơn sẽ chậm hơn; nếu trình diễn trên máy khác thì chỉnh số này.
+ */
+const NOISE_LOOPS_PER_PRODUCT = 60_000
+
+/**
  * Lọc + sắp xếp 2000 sản phẩm, kèm một vòng lặp giả lập công việc nặng
- * (khoảng 40ms) — đủ lớn để khán giả CẢM NHẬN được độ giật khi gõ phím,
+ * (khoảng 85ms) — đủ lớn để khán giả CẢM NHẬN được độ giật khi gõ phím,
  * nhưng chưa tới mức làm ô nhập không dùng được.
  *
  * `meterId` chỉ phục vụ việc đếm cho demo, không liên quan tới logic.
@@ -49,9 +56,9 @@ export function expensiveSearch(products: Product[], query: string, meterId: str
 
   const items = products
     .filter((p) => {
-      // giả lập phần tính toán tốn CPU (~40ms cho cả 2000 sản phẩm)
+      // giả lập phần tính toán tốn CPU
       let noise = 0
-      for (let i = 0; i < 9000; i++) {
+      for (let i = 0; i < NOISE_LOOPS_PER_PRODUCT; i++) {
         noise += Math.sqrt((i * p.id) % 97)
       }
       return noise > 0 && (q === '' || p.name.toLowerCase().includes(q))
