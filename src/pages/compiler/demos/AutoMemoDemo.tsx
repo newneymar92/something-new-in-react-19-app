@@ -16,6 +16,59 @@ const TEAM: Member[] = [
 ];
 
 // #region demo
+/*
+ * Component ngoài cùng giữ state `count`, mỗi lần bấm nút:
+ *   onClick={() => setCount((c) => c + 1)}
+ * rồi truyền xuống CẢ HAI bên:
+ *   <ParentNoCompiler count={count} />
+ *   <ParentCompiled count={count} />
+ * => prop `count` đổi nên Parent chắc chắn render lại.
+ */
+
+/**
+ * ❌ Bản KHÔNG được compiler xử lý (bị tắt bằng directive).
+ * Mặc định của React: cha render lại là TẤT CẢ con render theo,
+ * dù props của con không hề đổi.
+ */
+function ParentNoCompiler({ count }: { count: number }) {
+  "use no memo"; // <- CHỈ khác đúng dòng này
+
+  const renders = useRenderCount();
+  const [members] = useState(TEAM); // giữ nguyên tham chiếu qua mọi lần render
+
+  return (
+    <div>
+      <RenderBadge label="Parent render" value={renders} />
+      <p className="dim mono" style={{ margin: "10px 0" }}>
+        count = {count}
+      </p>
+      {/* TeamList KHÔNG nhận count, chỉ nhận members */}
+      <TeamList members={members} />
+    </div>
+  );
+}
+
+/**
+ * ✅ Bản ĐƯỢC React Compiler xử lý — code y hệt, không thêm memo gì cả.
+ * Compiler cache phần tử <TeamList members={members} /> theo `members`.
+ * `members` không đổi => trả lại đúng phần tử cũ => React bỏ qua TeamList.
+ */
+function ParentCompiled({ count }: { count: number }) {
+  const renders = useRenderCount();
+  const [members] = useState(TEAM); // giữ nguyên tham chiếu qua mọi lần render
+
+  return (
+    <div>
+      <RenderBadge label="Parent render" value={renders} />
+      <p className="dim mono" style={{ margin: "10px 0" }}>
+        count = {count}
+      </p>
+      {/* TeamList KHÔNG nhận count, chỉ nhận members */}
+      <TeamList members={members} />
+    </div>
+  );
+}
+
 /** Component con — dùng chung cho CẢ HAI phía để so sánh công bằng */
 function TeamList({ members }: { members: Member[] }) {
   const renders = useRenderCount();
@@ -44,40 +97,6 @@ function TeamList({ members }: { members: Member[] }) {
           </Space>
         ))}
       </div>
-    </div>
-  );
-}
-
-/** ❌ Bản KHÔNG được compiler xử lý (bị tắt bằng directive) */
-function ParentNoCompiler({ count }: { count: number }) {
-  "use no memo"; // <- CHỈ khác đúng dòng này
-
-  const renders = useRenderCount();
-  const [members] = useState(TEAM);
-
-  return (
-    <div>
-      <RenderBadge label="Parent render" value={renders} />
-      <p className="dim mono" style={{ margin: "10px 0" }}>
-        count = {count}
-      </p>
-      <TeamList members={members} />
-    </div>
-  );
-}
-
-/** ✅ Bản ĐƯỢC React Compiler xử lý — code y hệt, không thêm memo gì cả */
-function ParentCompiled({ count }: { count: number }) {
-  const renders = useRenderCount();
-  const [members] = useState(TEAM);
-
-  return (
-    <div>
-      <RenderBadge label="Parent render" value={renders} />
-      <p className="dim mono" style={{ margin: "10px 0" }}>
-        count = {count}
-      </p>
-      <TeamList members={members} />
     </div>
   );
 }

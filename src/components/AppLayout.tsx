@@ -15,9 +15,9 @@ const { Header, Content } = Layout
 const NAV_ITEMS = [
   { key: '/', icon: <HomeOutlined />, label: 'Tổng quan' },
   { key: '/react-compiler', icon: <RocketOutlined />, label: 'React Compiler' },
+  { key: '/use-transition', icon: <FieldTimeOutlined />, label: 'useTransition' },
   { key: '/use-optimistic', icon: <ThunderboltOutlined />, label: 'useOptimistic' },
   { key: '/ref-as-prop', icon: <AimOutlined />, label: 'ref là prop' },
-  { key: '/use-transition', icon: <FieldTimeOutlined />, label: 'useTransition' },
 ]
 
 export default function AppLayout() {
