@@ -23,6 +23,18 @@ const TOPICS = [
     ],
   },
   {
+    to: "/use-transition",
+    icon: <FieldTimeOutlined />,
+    title: "useTransition",
+    tag: "UI không bị khựng",
+    desc: "Đánh dấu cập nhật nặng là không gấp để ô nhập và cú click luôn phản hồi ngay. React 19 cho truyền thẳng hàm async vào transition.",
+    points: [
+      "Ô tìm kiếm không khựng",
+      "Chuyển tab nặng",
+      "Transition nhận hàm async",
+    ],
+  },
+  {
     to: "/use-optimistic",
     icon: <ThunderboltOutlined />,
     title: "useOptimistic",
@@ -45,18 +57,6 @@ const TOPICS = [
       "forwardRef vs ref prop",
       "useImperativeHandle",
       "Cleanup cho ref callback",
-    ],
-  },
-  {
-    to: "/use-transition",
-    icon: <FieldTimeOutlined />,
-    title: "useTransition",
-    tag: "UI không bị khựng",
-    desc: "Đánh dấu cập nhật nặng là không gấp để ô nhập và cú click luôn phản hồi ngay. React 19 cho truyền thẳng hàm async vào transition.",
-    points: [
-      "Ô tìm kiếm không khựng",
-      "Chuyển tab nặng",
-      "Transition nhận hàm async",
     ],
   },
 ];

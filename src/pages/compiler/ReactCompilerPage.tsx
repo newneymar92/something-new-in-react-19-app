@@ -143,6 +143,7 @@ export default function ReactCompilerPage() {
             code: extractRegion(autoMemoRaw, "demo"),
             language: "tsx",
             maxHeight: 620,
+            highlight: [3, 16, 28, 49],
           },
           {
             key: "old",
