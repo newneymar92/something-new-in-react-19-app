@@ -1,5 +1,5 @@
-import { useState } from 'react'
-import { Alert, Input, Space, Statistic } from 'antd'
+import { useRef, useState } from 'react'
+import { Alert, Input, Space } from 'antd'
 import { SearchOutlined, EditOutlined } from '@ant-design/icons'
 import { Link } from 'react-router-dom'
 
@@ -10,7 +10,7 @@ import {
   PRODUCTS,
   expensiveSearch,
   formatVnd,
-  type SearchResult,
+  type Product,
 } from '../../../lib/expensive'
 
 // #region demo
@@ -18,27 +18,50 @@ import {
 function SearchPanelNoCompiler({ query, note }: { query: string; note: string }) {
   'use no memo' // <- chỉ khác đúng dòng này
 
-  const result = expensiveSearch(PRODUCTS, query, 'no-compiler')
+  const result = expensiveSearch(PRODUCTS, query)
   return <ResultView result={result} note={note} tone="hot" />
 }
 
 /** ✅ Có compiler: kết quả được cache theo `query`, gõ ghi chú không tính lại */
 function SearchPanelCompiled({ query, note }: { query: string; note: string }) {
-  const result = expensiveSearch(PRODUCTS, query, 'compiled')
+  const result = expensiveSearch(PRODUCTS, query)
   return <ResultView result={result} note={note} tone="cool" />
 }
 // #endregion
+
+/**
+ * Mỗi lần expensiveSearch() thực sự chạy là ra một mảng kết quả MỚI, còn khi
+ * compiler trả kết quả từ cache thì vẫn là mảng cũ. Nên chỉ cần đếm số mảng
+ * khác nhau nhận được là biết hàm đã chạy bao nhiêu lần.
+ *
+ * Ghi vào ref ngay trong lúc render là phạm Rules of React — cùng lý do với
+ * useRenderCount nên cũng tắt compiler cho hook này. Chỉ dùng để đo cho demo.
+ */
+/* eslint-disable react-hooks/refs -- cố ý vi phạm, xem chú thích phía trên */
+function useSearchMeter(result: Product[]): number {
+  'use no memo'
+
+  const meter = useRef({ last: null as Product[] | null, runs: 0 })
+  const m = meter.current
+  if (m.last !== result) {
+    m.last = result
+    m.runs += 1
+  }
+  return m.runs
+}
+/* eslint-enable react-hooks/refs */
 
 function ResultView({
   result,
   note,
   tone,
 }: {
-  result: SearchResult
+  result: Product[]
   note: string
   tone: 'hot' | 'cool'
 }) {
   const renders = useRenderCount()
+  const runs = useSearchMeter(result)
   const flashRef = useRenderFlash<HTMLDivElement>(
     tone === 'hot' ? 'var(--danger)' : 'var(--success)',
   )
@@ -49,33 +72,18 @@ function ResultView({
         <RenderBadge label="render" value={renders} />
         <RenderBadge
           label="số lần lọc"
-          value={result.runs}
+          value={runs}
           tone={tone}
           tip="Số lần hàm expensiveSearch() thực sự chạy"
         />
       </Space>
 
-      <div style={{ display: 'flex', gap: 22, margin: '14px 0 10px' }}>
-        <Statistic
-          title="Lần lọc gần nhất"
-          value={result.ms}
-          suffix="ms"
-          styles={{ content: { fontSize: 20, color: tone === 'hot' ? 'var(--danger)' : 'var(--success)' } }}
-        />
-        <Statistic
-          title="Tổng thời gian lọc"
-          value={result.totalMs}
-          suffix="ms"
-          styles={{ content: { fontSize: 20 } }}
-        />
-      </div>
-
-      <div className="dim" style={{ fontSize: 12.5, marginBottom: 6 }}>
-        5 kết quả rẻ nhất khớp từ khoá:
+      <div className="dim" style={{ fontSize: 12.5, margin: '14px 0 6px' }}>
+        Kết quả lọc:
       </div>
       <div style={{ display: 'grid', gap: 4, fontSize: 13 }}>
-        {result.items.length === 0 && <i className="dim">Không có sản phẩm nào khớp</i>}
-        {result.items.map((p) => (
+        {result.length === 0 && <i className="dim">Không có sản phẩm nào khớp</i>}
+        {result.map((p) => (
           <div key={p.id} style={{ display: 'flex', justifyContent: 'space-between', gap: 10 }}>
             <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
               {p.name}
@@ -176,15 +184,11 @@ export default function AutoUseMemoDemo() {
         style={{ marginTop: 16 }}
         type="info"
         showIcon
-        title="Cách diễn cho khán giả"
+        title="Bổ sung"
         description={
           <span className="dim">
-            Gõ liên tục vào ô ghi chú bên trái: chữ hiện ra bị khựng vì mỗi ký tự lại phải lọc lại
-            2000 sản phẩm, &quot;số lần lọc&quot; tăng theo từng phím. Làm y hệt ở ô ghi chú bên
-            phải: gõ mượt, &quot;số lần lọc&quot; đứng yên. Sau đó đổi từ khoá ở ô trên cùng — lúc
-            này cả hai đều tính lại và ô từ khoá khựng ở cả hai bên: compiler chỉ bỏ qua phép tính
-            thừa, không làm phép tính nhanh hơn. Muốn gõ vẫn mượt khi phép tính bắt buộc phải chạy,
-            xem <Link to="/use-transition">useTransition</Link>.
+          Muốn gõ vẫn mượt khi phép tính toán nặng bắt buộc phải chạy,
+          xem <Link to="/use-transition">useTransition</Link>.
           </span>
         }
       />

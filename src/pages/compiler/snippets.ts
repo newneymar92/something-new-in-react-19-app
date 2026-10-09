@@ -52,8 +52,7 @@ function Parent({ count }) {
   )
 }
 
-// Quên MỘT trong ba chỗ trên là toàn bộ tối ưu đổ sông đổ biển,
-// mà lint thì không hề báo lỗi.`
+`
 
 export const MEMO_NEW_WAY = `// ✅ REACT 19 + COMPILER: xoá sạch, viết như bình thường
 import { useState } from 'react'

@@ -20,22 +20,6 @@ export const PRODUCTS: Product[] = Array.from({ length: 2000 }, (_, i) => ({
   category: CATEGORIES[i % CATEGORIES.length],
 }))
 
-export type SearchResult = {
-  items: Product[]
-  /** Lần tính gần nhất mất bao nhiêu ms */
-  ms: number
-  /** Hàm này đã thực sự chạy bao nhiêu lần cho khu vực đo `meterId` */
-  runs: number
-  /** Tổng thời gian đã tiêu tốn (ms) */
-  totalMs: number
-}
-
-const meters = new Map<string, { runs: number; totalMs: number }>()
-
-export function resetMeters() {
-  meters.clear()
-}
-
 /**
  * Số vòng lặp "vô nghĩa" cho MỖI sản phẩm. 60_000 × 2000 sản phẩm ≈ 85ms trên
  * máy dev — vượt ngưỡng ~50ms mà mắt người bắt đầu thấy khựng khi gõ phím.
@@ -48,15 +32,14 @@ const NOISE_LOOPS_PER_PRODUCT = 60_000
  * (khoảng 85ms) — đủ lớn để khán giả CẢM NHẬN được độ giật khi gõ phím,
  * nhưng chưa tới mức làm ô nhập không dùng được.
  *
- * `meterId` chỉ phục vụ việc đếm cho demo, không liên quan tới logic.
+ * Mỗi lần chạy trả về một mảng MỚI — nhờ vậy bên ngoài đếm được hàm đã
+ * thực sự chạy bao nhiêu lần (xem useSearchMeter trong AutoUseMemoDemo).
  */
-export function expensiveSearch(products: Product[], query: string, meterId: string): SearchResult {
-  const started = performance.now()
+export function expensiveSearch(products: Product[], query: string): Product[] {
   const q = query.trim().toLowerCase()
 
-  const items = products
+  return products
     .filter((p) => {
-      // giả lập phần tính toán tốn CPU
       let noise = 0
       for (let i = 0; i < NOISE_LOOPS_PER_PRODUCT; i++) {
         noise += Math.sqrt((i * p.id) % 97)
@@ -65,14 +48,6 @@ export function expensiveSearch(products: Product[], query: string, meterId: str
     })
     .sort((a, b) => a.price - b.price)
     .slice(0, 5)
-
-  const ms = Math.round(performance.now() - started)
-  const meter = meters.get(meterId) ?? { runs: 0, totalMs: 0 }
-  meter.runs += 1
-  meter.totalMs += ms
-  meters.set(meterId, meter)
-
-  return { items, ms, runs: meter.runs, totalMs: meter.totalMs }
 }
 
 export function formatVnd(value: number) {

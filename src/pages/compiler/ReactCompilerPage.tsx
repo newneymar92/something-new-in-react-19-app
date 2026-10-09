@@ -50,7 +50,7 @@ export default function ReactCompilerPage() {
             React Compiler đọc code của bạn lúc build và tự chèn cache vào đúng
             những chỗ trước đây phải viết tay bằng <code>useMemo</code>,{" "}
             <code>useCallback</code> và <code>React.memo</code>. Bạn viết code
-            React thuần tuý nhất có thể, phần tối ưu để máy lo. Điều bất ngờ: nó
+            React thuần tuý nhất có thể, phần tối ưu để React tự xử lý. Nó
             là một <b>trình biên dịch</b>, không phải hook hay API runtime. Code
             React của bạn <b>=&gt;</b> React Compiler <b>=&gt;</b> Code React/JS
             tối ưu hơn <b>=&gt;</b> Browser chạy
@@ -117,14 +117,14 @@ export default function ReactCompilerPage() {
       </Row>
 
       <Typography.Paragraph className="dim" style={{ marginTop: 14 }}>
-        Chỉ có vậy. Không import gì thêm trong code ứng dụng, không đổi cách
+        Không import gì thêm trong code ứng dụng, không đổi cách
         viết component. Compiler chạy ở bước build nên{" "}
         <b>không hề làm tăng kích thước runtime của React</b>.
       </Typography.Paragraph>
 
       {/* ------------------------------------------------------------------ */}
       <SectionTitle num="2">
-        Ví dụ 1 — Con không còn render lại vô ích
+        Ví dụ 1 — Component con không còn render lại vô ích
       </SectionTitle>
 
       <DemoCard

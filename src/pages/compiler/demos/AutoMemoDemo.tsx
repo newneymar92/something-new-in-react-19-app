@@ -30,7 +30,7 @@ const TEAM: Member[] = [
  * Mặc định của React: cha render lại là TẤT CẢ con render theo,
  * dù props của con không hề đổi.
  */
-function ParentNoCompiler({ count }: { count: number }) {
+function ParentNoCompiler(_props: { count: number }) {
   "use no memo"; // <- CHỈ khác đúng dòng này
 
   const renders = useRenderCount();
@@ -39,9 +39,6 @@ function ParentNoCompiler({ count }: { count: number }) {
   return (
     <div>
       <RenderBadge label="Parent render" value={renders} />
-      <p className="dim mono" style={{ margin: "10px 0" }}>
-        count = {count}
-      </p>
       {/* TeamList KHÔNG nhận count, chỉ nhận members */}
       <TeamList members={members} />
     </div>
@@ -53,23 +50,20 @@ function ParentNoCompiler({ count }: { count: number }) {
  * Compiler cache phần tử <TeamList members={members} /> theo `members`.
  * `members` không đổi => trả lại đúng phần tử cũ => React bỏ qua TeamList.
  */
-function ParentCompiled({ count }: { count: number }) {
+function ParentCompiled(_props: { count: number }) {
   const renders = useRenderCount();
   const [members] = useState(TEAM); // giữ nguyên tham chiếu qua mọi lần render
 
   return (
     <div>
       <RenderBadge label="Parent render" value={renders} />
-      <p className="dim mono" style={{ margin: "10px 0" }}>
-        count = {count}
-      </p>
       {/* TeamList KHÔNG nhận count, chỉ nhận members */}
       <TeamList members={members} />
     </div>
   );
 }
 
-/** Component con — dùng chung cho CẢ HAI phía để so sánh công bằng */
+/** Component con — dùng chung cho CẢ HAI phía để so sánh */
 function TeamList({ members }: { members: Member[] }) {
   const renders = useRenderCount();
   const flashRef = useRenderFlash<HTMLDivElement>();
