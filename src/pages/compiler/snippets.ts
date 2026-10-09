@@ -81,6 +81,46 @@ function Parent({ count }) {
 // Compiler tự chèn cache cho: mảng \`active\`, hàm \`handleSelect\`
 // và cả phần tử JSX \`<TeamList />\`.`
 
+export const USEMEMO_OLD_WAY = `// ❌ CÁCH CŨ (React 18): phải tự nhớ bọc useMemo
+import { useMemo, useState } from 'react'
+
+function SearchPanel({ query }) {
+  // state không liên quan gì tới phép lọc
+  const [note, setNote] = useState('')
+
+  // Quên useMemo ở đây là gõ 1 ký tự vào ô ghi chú cũng lọc lại 2000 sản phẩm.
+  const result = useMemo(
+    () => expensiveSearch(PRODUCTS, query),
+    [query], // <- mảng dependency
+  )         
+  return (
+    <>
+      <input value={note} onChange={(e) => setNote(e.target.value)} />
+      <ResultView result={result} note={note} />
+    </>
+  )
+}`
+
+export const USEMEMO_NEW_WAY = `// ✅ REACT 19 + COMPILER: viết thẳng, không bọc gì cả
+import { useState } from 'react'
+
+function SearchPanel({ query }) {
+  const [note, setNote] = useState('')
+
+  const result = expensiveSearch(PRODUCTS, query)
+
+  return (
+    <>
+      <input value={note} onChange={(e) => setNote(e.target.value)} />
+      <ResultView result={result} note={note} />
+    </>
+  )
+}
+
+// Compiler đọc code và thấy \`result\` chỉ phụ thuộc \`query\`, nên nó tự cache:
+// đổi \`note\` -> trả lại mảng cũ, expensiveSearch() không chạy lại.
+// Dependency do compiler suy ra, không còn chỗ cho con người viết sai.`
+
 export const CALLBACK_OLD_WAY = `// ❌ Cái bẫy kinh điển của React.memo
 const ExpensiveChart = memo(function ExpensiveChart({ data, onPick }) {
   // ...
@@ -100,13 +140,13 @@ function Parent({ tick }) {
   )
 }`
 
-export const CALLBACK_FIX_WAY = `// 🩹 Cách chữa của React 18: nhớ mà bọc useCallback
+export const CALLBACK_FIX_WAY = `// 🩹 Cách chữa của React 18: cần nhớ bọc useCallback
 function Parent({ tick }) {
   const [picked, setPicked] = useState('—')
 
   const handlePick = useCallback((label) => {
     setPicked(label)
-  }, []) // <- và phải tự canh mảng dependency cho đúng
+  }, []) 
 
   return <ExpensiveChart data={CHART_DATA} onPick={handlePick} />
 }`

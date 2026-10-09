@@ -3,7 +3,6 @@ import { Alert, Input, Space } from 'antd'
 import { SearchOutlined, EditOutlined } from '@ant-design/icons'
 import { Link } from 'react-router-dom'
 
-import CompiledBadge from '../../../components/CompiledBadge'
 import RenderBadge from '../../../components/RenderBadge'
 import { useRenderCount, useRenderFlash } from '../../../hooks/useRenderCount'
 import {
@@ -26,6 +25,45 @@ function SearchPanelNoCompiler({ query, note }: { query: string; note: string })
 function SearchPanelCompiled({ query, note }: { query: string; note: string }) {
   const result = expensiveSearch(PRODUCTS, query)
   return <ResultView result={result} note={note} tone="cool" />
+}
+
+/**
+ * Mỗi bên giữ state ghi chú RIÊNG: gõ ở bên nào thì chỉ bên đó render lại.
+ * Nếu dùng chung một ô, cả hai panel nằm trong cùng một lần render nên bên
+ * trái chậm sẽ kéo cả trang chậm theo — không còn thấy "trái giật, phải mượt".
+ */
+function DemoColumn({
+  query,
+  title,
+  titleColor,
+  Panel,
+}: {
+  query: string
+  title: string
+  titleColor: string
+  Panel: typeof SearchPanelCompiled
+}) {
+  const [note, setNote] = useState('')
+
+  return (
+    <div>
+      <div style={{ marginBottom: 8 }}>
+        <b style={{ color: titleColor }}>{title}</b>
+      </div>
+      <label style={{ display: 'block', marginBottom: 10 }}>
+        <div style={{ fontSize: 12.5, marginBottom: 4, color: 'var(--text-dim)', fontWeight: 600 }}>
+          Ghi chú — KHÔNG liên quan gì tới phép lọc
+        </div>
+        <Input
+          prefix={<EditOutlined />}
+          value={note}
+          onChange={(e) => setNote(e.target.value)}
+          placeholder="Gõ liên tục vào đây"
+        />
+      </label>
+      <Panel query={query} note={note} />
+    </div>
+  )
 }
 // #endregion
 
@@ -104,48 +142,6 @@ function ResultView({
   )
 }
 
-/**
- * Mỗi bên giữ state ghi chú RIÊNG: gõ ở bên nào thì chỉ bên đó render lại.
- * Nếu dùng chung một ô, cả hai panel nằm trong cùng một lần render nên bên
- * trái chậm sẽ kéo cả trang chậm theo — không còn thấy "trái giật, phải mượt".
- */
-function DemoColumn({
-  query,
-  title,
-  titleColor,
-  Panel,
-  panelName,
-}: {
-  query: string
-  title: string
-  titleColor: string
-  Panel: typeof SearchPanelCompiled
-  panelName: string
-}) {
-  const [note, setNote] = useState('')
-
-  return (
-    <div>
-      <Space size={6} style={{ marginBottom: 8 }} wrap>
-        <b style={{ color: titleColor }}>{title}</b>
-        <CompiledBadge fn={Panel} name={panelName} />
-      </Space>
-      <label style={{ display: 'block', marginBottom: 10 }}>
-        <div style={{ fontSize: 12.5, marginBottom: 4, color: 'var(--text-dim)', fontWeight: 600 }}>
-          Ghi chú — KHÔNG liên quan gì tới phép lọc
-        </div>
-        <Input
-          prefix={<EditOutlined />}
-          value={note}
-          onChange={(e) => setNote(e.target.value)}
-          placeholder="Gõ liên tục vào đây"
-        />
-      </label>
-      <Panel query={query} note={note} />
-    </div>
-  )
-}
-
 export default function AutoUseMemoDemo() {
   const [query, setQuery] = useState('Dell')
 
@@ -169,14 +165,12 @@ export default function AutoUseMemoDemo() {
           title="❌ Không compiler"
           titleColor="var(--danger)"
           Panel={SearchPanelNoCompiler}
-          panelName="SearchPanelNoCompiler"
         />
         <DemoColumn
           query={query}
           title="✅ Có compiler"
           titleColor="var(--success)"
           Panel={SearchPanelCompiled}
-          panelName="SearchPanelCompiled"
         />
       </div>
 

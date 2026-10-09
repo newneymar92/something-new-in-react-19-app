@@ -5,7 +5,6 @@ import {
   HomeOutlined,
   RocketOutlined,
   ThunderboltOutlined,
-  AimOutlined,
   FieldTimeOutlined,
 } from '@ant-design/icons'
 import { Link, Outlet, useLocation } from 'react-router-dom'
@@ -17,7 +16,6 @@ const NAV_ITEMS = [
   { key: '/react-compiler', icon: <RocketOutlined />, label: 'React Compiler' },
   { key: '/use-transition', icon: <FieldTimeOutlined />, label: 'useTransition' },
   { key: '/use-optimistic', icon: <ThunderboltOutlined />, label: 'useOptimistic' },
-  { key: '/ref-as-prop', icon: <AimOutlined />, label: 'ref là prop' },
 ]
 
 export default function AppLayout() {

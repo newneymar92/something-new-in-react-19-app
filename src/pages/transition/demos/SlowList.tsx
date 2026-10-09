@@ -1,10 +1,14 @@
 import { PRODUCTS, formatVnd } from '../../../lib/expensive'
 
 /**
- * Số vòng lặp "vô nghĩa" cho MỖI sản phẩm: 700_000 ≈ 0,5ms trên máy dev
- * → 200 item ≈ 100ms, 1000 item ≈ 500ms. Trình diễn trên máy khác thì chỉnh số này.
+ * Số vòng lặp "vô nghĩa" cho MỖI sản phẩm: 3_000_000 ≈ 2ms trên máy dev
+ * → 250 item ≈ 0,5 giây, 400 item ≈ 0,85 giây. Máy khác thì chỉnh số này.
+ *
+ * ĐÂY mới là nút vặn độ nặng, không phải `limit` ở nơi gọi. Số item render thật = số sản phẩm
+ * KHỚP từ khoá, mà mấy từ khoá dùng để demo chỉ khớp ~222/2000 ("Dell", "Asus") — nâng `limit`
+ * quá 222 không đổi gì lúc gõ phím, chỉ làm lần render đầu (ô trống) nặng thêm.
  */
-const LOOPS_PER_ITEM = 700_000
+const LOOPS_PER_ITEM = 3_000_000
 
 /**
  * Tách tên sản phẩm quanh đoạn khớp từ khoá, kèm vòng lặp giả lập một thuật toán so khớp tốn
@@ -54,8 +58,8 @@ function SlowItem({ name, price, query }: { name: string; price: number; query: 
 
 /**
  * Danh sách "nặng" dùng chung cho các demo useTransition.
- * Độ chậm nằm rải trong NHIỀU component nhỏ (mỗi SlowItem ~0,5ms) — nhờ vậy React có chỗ để
- * tạm dừng giữa các item khi render trong transition. Dồn cả vào một hàm chạy 100ms thì React
+ * Độ chậm nằm rải trong NHIỀU component nhỏ (mỗi SlowItem ~2ms) — nhờ vậy React có chỗ để tạm
+ * dừng giữa các item khi render trong transition. Dồn cả vào một hàm chạy nửa giây thì React
  * không ngắt được.
  */
 export default function SlowList({ query, limit }: { query: string; limit: number }) {

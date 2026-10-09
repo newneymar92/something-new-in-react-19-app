@@ -12,7 +12,7 @@ import viVN from 'antd/locale/vi_VN'
 import App from '../src/App'
 import { darkTheme } from '../src/theme'
 
-const ROUTES = ['/', '/react-compiler', '/use-optimistic', '/ref-as-prop', '/use-transition']
+const ROUTES = ['/', '/react-compiler', '/use-optimistic', '/use-transition']
 
 let failed = false
 

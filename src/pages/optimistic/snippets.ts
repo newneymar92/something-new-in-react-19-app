@@ -17,13 +17,13 @@ export const ACTIONS = `// Action = hàm (thường là async) mà React chạy 
 // 1. <form action>: React tự bọc hàm trong transition          → Ví dụ 1
 <form action={sendAction}>...</form>
 
-// 2. startTransition                                             → Ví dụ 2, 4
+// 2. startTransition                                             → Ví dụ 2, 3
 startTransition(async () => {
   addOptimistic(payload)
   await api.save(payload)
 })
 
-// 3. useActionState, dùng làm form action                        → Ví dụ 3
+// 3. useActionState, dùng làm form action
 const [error, addAction, isPending] = useActionState(saveFn, null)
 <form action={addAction}>...</form>`
 
@@ -154,12 +154,4 @@ addOptimistic(payload)        // ❌ React cảnh báo + huỷ giá trị ngay l
 //    nếu không UI sẽ "nhảy" về giá trị cũ khi action kết thúc.
 const saved = await api.save(payload)
 setState(saved)               // ✅ đừng quên dòng này
-
-
-// 3️⃣ Đừng dùng cho dữ liệu không được phép sai
-//    (số dư ví, kết quả thanh toán, tồn kho lúc đặt hàng...).
-//    useOptimistic hợp với like, comment, thêm việc, đổi tên —
-//    những thao tác gần như chắc chắn thành công.
-
-
-// 4️⃣ id tạm phải khác id thật, và nhớ đặt key ổn định khi render list.`
+`

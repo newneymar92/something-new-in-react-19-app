@@ -3,7 +3,6 @@ import { Avatar, Button, Space } from "antd";
 import { PlusOutlined, ReloadOutlined } from "@ant-design/icons";
 
 import RenderBadge from "../../../components/RenderBadge";
-import CompiledBadge from "../../../components/CompiledBadge";
 import { useRenderCount, useRenderFlash } from "../../../hooks/useRenderCount";
 
 type Member = { id: number; name: string; role: string; color: string };
@@ -69,7 +68,11 @@ function TeamList({ members }: { members: Member[] }) {
   const flashRef = useRenderFlash<HTMLDivElement>();
 
   return (
-    <div ref={flashRef} className="panel-box" style={{ padding: 12 }}>
+    <div
+      ref={flashRef}
+      className="panel-box"
+      style={{ padding: 12, marginTop: 8 }}
+    >
       <RenderBadge
         label="TeamList render"
         value={renders}
@@ -129,18 +132,16 @@ export default function AutoMemoDemo() {
         }}
       >
         <div>
-          <Space size={6} style={{ marginBottom: 8 }} wrap>
+          <div style={{ marginBottom: 8 }}>
             <b style={{ color: "var(--danger)" }}>❌ Không compiler</b>
-            <CompiledBadge fn={ParentNoCompiler} name="ParentNoCompiler" />
-          </Space>
+          </div>
           <ParentNoCompiler key={`a-${nonce}`} count={count} />
         </div>
 
         <div>
-          <Space size={6} style={{ marginBottom: 8 }} wrap>
+          <div style={{ marginBottom: 8 }}>
             <b style={{ color: "var(--success)" }}>✅ Có compiler</b>
-            <CompiledBadge fn={ParentCompiled} name="ParentCompiled" />
-          </Space>
+          </div>
           <ParentCompiled key={`b-${nonce}`} count={count} />
         </div>
       </div>

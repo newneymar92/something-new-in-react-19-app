@@ -4,13 +4,11 @@ import CodeBlock from "../../components/CodeBlock";
 import DemoCard from "../../components/DemoCard";
 import { PageHeader, SectionTitle } from "../../components/PageHeader";
 import { extractRegion } from "../../lib/source";
-import { COMPILED_SAMPLES } from "../../generated/compilerOutput";
 
 import AutoMemoDemo from "./demos/AutoMemoDemo";
 import AutoUseMemoDemo from "./demos/AutoUseMemoDemo";
 import AutoUseCallbackDemo from "./demos/AutoUseCallbackDemo";
 import BailoutDemo from "./demos/BailoutDemo";
-import CartSummary from "./samples/CartSummary";
 import {
   CALLBACK_FIX_WAY,
   CALLBACK_OLD_WAY,
@@ -19,6 +17,8 @@ import {
   INSTALL_SNIPPET,
   MEMO_NEW_WAY,
   MEMO_OLD_WAY,
+  USEMEMO_NEW_WAY,
+  USEMEMO_OLD_WAY,
 } from "./snippets";
 
 // Đọc thẳng source của chính các file demo (tính năng ?raw của Vite)
@@ -26,20 +26,9 @@ import autoMemoRaw from "./demos/AutoMemoDemo.tsx?raw";
 import autoUseMemoRaw from "./demos/AutoUseMemoDemo.tsx?raw";
 import autoUseCallbackRaw from "./demos/AutoUseCallbackDemo.tsx?raw";
 import bailoutRaw from "./demos/BailoutDemo.tsx?raw";
-import cartSummaryRaw from "./samples/CartSummary.tsx?raw";
 import viteConfigRaw from "../../../vite.config.ts?raw";
 
-const CART_ITEMS = [
-  { id: 1, name: "Bàn phím cơ Keychron K2", price: 2_190_000, qty: 1 },
-  { id: 2, name: "Chuột Logitech MX Master 3S", price: 2_450_000, qty: 2 },
-  { id: 3, name: "Kê tay gỗ óc chó", price: 390_000, qty: 1 },
-];
-
 export default function ReactCompilerPage() {
-  const compiledSample = COMPILED_SAMPLES["cart-summary"];
-  const sourceLines = cartSummaryRaw.trim().split("\n").length;
-  const compiledLines = compiledSample.compiled.trim().split("\n").length;
-
   return (
     <>
       <PageHeader
@@ -50,8 +39,8 @@ export default function ReactCompilerPage() {
             React Compiler đọc code của bạn lúc build và tự chèn cache vào đúng
             những chỗ trước đây phải viết tay bằng <code>useMemo</code>,{" "}
             <code>useCallback</code> và <code>React.memo</code>. Bạn viết code
-            React thuần tuý nhất có thể, phần tối ưu để React tự xử lý. Nó
-            là một <b>trình biên dịch</b>, không phải hook hay API runtime. Code
+            React thuần tuý nhất có thể, phần tối ưu để React tự xử lý. Nó là
+            một <b>trình biên dịch</b>, không phải hook hay API runtime. Code
             React của bạn <b>=&gt;</b> React Compiler <b>=&gt;</b> Code React/JS
             tối ưu hơn <b>=&gt;</b> Browser chạy
           </>
@@ -117,8 +106,8 @@ export default function ReactCompilerPage() {
       </Row>
 
       <Typography.Paragraph className="dim" style={{ marginTop: 14 }}>
-        Không import gì thêm trong code ứng dụng, không đổi cách
-        viết component. Compiler chạy ở bước build nên{" "}
+        Không import gì thêm trong code ứng dụng, không đổi cách viết component.
+        Compiler chạy ở bước build nên{" "}
         <b>không hề làm tăng kích thước runtime của React</b>.
       </Typography.Paragraph>
 
@@ -178,19 +167,36 @@ export default function ReactCompilerPage() {
             theo cả phép lọc nặng chạy lại.
           </>
         }
-        code={{
-          code: extractRegion(autoUseMemoRaw, "demo"),
-          language: "tsx",
-          maxHeight: 420,
-        }}
+        code={[
+          {
+            key: "now",
+            label: "Code đang chạy",
+            code: extractRegion(autoUseMemoRaw, "demo"),
+            language: "tsx",
+            maxHeight: 620,
+            highlight: [3, 11],
+          },
+          {
+            key: "old",
+            label: "❌ Cách cũ (React 18)",
+            code: USEMEMO_OLD_WAY,
+            language: "tsx",
+            maxHeight: 620,
+          },
+          {
+            key: "new",
+            label: "✅ Cách mới",
+            code: USEMEMO_NEW_WAY,
+            language: "tsx",
+            maxHeight: 620,
+          },
+        ]}
       >
         <AutoUseMemoDemo />
       </DemoCard>
 
       {/* ------------------------------------------------------------------ */}
-      <SectionTitle num="4">
-        Ví dụ 3 — Cái bẫy React.memo + hàm mũi tên
-      </SectionTitle>
+      <SectionTitle num="4">Ví dụ 3 — React.memo + arrow function</SectionTitle>
 
       <DemoCard
         title="Bọc React.memo rồi mà con vẫn render lại"
@@ -230,82 +236,7 @@ export default function ReactCompilerPage() {
 
       {/* ------------------------------------------------------------------ */}
       <SectionTitle num="5">
-        Ví dụ 4 — Compiler đã viết lại code của bạn ra sao?
-      </SectionTitle>
-
-      <DemoCard
-        title={`${sourceLines} dòng bạn viết → ${compiledLines} dòng compiler sinh ra`}
-        description={
-          <>
-            Đây là output THẬT, sinh bằng <code>npm run gen:compiled</code> từ
-            chính file <code>{compiledSample.file}</code>. Component bên phải là
-            component đó đang chạy. Chú ý mảng <code>$</code> — đó là bộ nhớ
-            cache, và <code>_c(21)</code> nghĩa là component này cần 21 ô nhớ.
-          </>
-        }
-        wideCode
-        code={[
-          {
-            key: "src",
-            label: "✍️ Bạn viết",
-            code: cartSummaryRaw.trim(),
-            language: "tsx",
-            maxHeight: 560,
-          },
-          {
-            key: "out",
-            label: "⚙️ Compiler sinh ra",
-            code: compiledSample.compiled,
-            language: "jsx",
-            maxHeight: 560,
-            highlight: [15, 16],
-          },
-        ]}
-        resultLabel="Component đó đang chạy"
-      >
-        <div className="panel-box">
-          <CartSummary items={CART_ITEMS} vat={0.08} />
-          <p
-            className="dim"
-            style={{
-              fontSize: 13,
-              marginTop: 14,
-              marginBottom: 0,
-              lineHeight: 1.7,
-            }}
-          >
-            Bấm vào nút để mở/đóng danh sách. Ba điểm đáng nói trong output:
-          </p>
-          <ul
-            className="dim"
-            style={{
-              fontSize: 13,
-              lineHeight: 1.8,
-              paddingLeft: 18,
-              marginBottom: 0,
-            }}
-          >
-            <li>
-              <code>const $ = _c(21)</code> — xin React cấp 21 ô nhớ gắn với
-              instance component.
-            </li>
-            <li>
-              <code>if ($[0] !== items.length || ...)</code> — so sánh
-              dependency y hệt <code>useMemo</code>, nhưng do máy tự sinh nên
-              không bao giờ thiếu deps.
-            </li>
-            <li>
-              <code>Symbol.for(&quot;react.memo_cache_sentinel&quot;)</code> —
-              đánh dấu ô nhớ chưa từng được ghi, dùng cho giá trị hằng chỉ tính
-              đúng một lần.
-            </li>
-          </ul>
-        </div>
-      </DemoCard>
-
-      {/* ------------------------------------------------------------------ */}
-      <SectionTitle num="6">
-        Ví dụ 5 — Khi nào compiler bỏ qua component?
+        Ví dụ 4 — Khi nào compiler bỏ qua component?
       </SectionTitle>
 
       <DemoCard
@@ -346,7 +277,7 @@ export default function ReactCompilerPage() {
       </DemoCard>
 
       {/* ------------------------------------------------------------------ */}
-      <SectionTitle num="7">Chốt lại</SectionTitle>
+      <SectionTitle num="6">Chốt lại</SectionTitle>
 
       <Row gutter={[16, 16]}>
         <Col xs={24} md={8}>

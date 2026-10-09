@@ -1,5 +1,4 @@
 import {
-  AimOutlined,
   ArrowRightOutlined,
   FieldTimeOutlined,
   RocketOutlined,
@@ -18,7 +17,7 @@ const TOPICS = [
     desc: "Trình biên dịch tự chèn cache vào code của bạn. Xoá sạch useMemo / useCallback / React.memo mà app vẫn nhanh — thậm chí nhanh hơn.",
     points: [
       "So sánh A/B ngay trong 1 app",
-      "Xem code sau khi compile",
+      "Cái bẫy React.memo + arrow function",
       "Khi nào compiler bỏ qua",
     ],
   },
@@ -43,20 +42,7 @@ const TOPICS = [
     points: [
       "Chat gửi tin nhắn",
       "Nút Like chống spam click",
-      "Form + useActionState",
-      "So với TanStack Query",
-    ],
-  },
-  {
-    to: "/ref-as-prop",
-    icon: <AimOutlined />,
-    title: "ref là prop bình thường",
-    tag: "Tạm biệt forwardRef",
-    desc: "Function component nhận thẳng ref qua props. Kèm theo đó: ref callback giờ có thể trả về hàm cleanup.",
-    points: [
-      "forwardRef vs ref prop",
-      "useImperativeHandle",
-      "Cleanup cho ref callback",
+      "So với useState thường",
     ],
   },
 ];
@@ -68,12 +54,12 @@ export default function HomePage() {
         <Tag color="blue" className="mono">
           Demo · React {version}
         </Tag>
-        <h1>Có gì mới &amp; lạ trong React 19?</h1>
+        <h1>Có gì mới trong React 19?</h1>
       </section>
 
       <Row gutter={[20, 20]} style={{ marginTop: 26 }}>
         {TOPICS.map((topic) => (
-          <Col key={topic.to} xs={24} md={12} xl={6}>
+          <Col key={topic.to} xs={24} md={12} xl={8}>
             <Link to={topic.to} className="topic-card">
               <div className="topic-card__icon">{topic.icon}</div>
               <Space size={8} align="center">
